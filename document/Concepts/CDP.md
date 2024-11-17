@@ -1,0 +1,2 @@
+
+A **Collateralized Debt Position (CDP)** is a concept used in decentralized finance (DeFi) to represent a loan that is secured by collateral. In the MakerDAO ecosystem, a CDP is created when a user deposits a collateral asset (such as ETH or other ERC20 tokens) into the system in exchange for borrowing a stablecoin (e.g., DAI).

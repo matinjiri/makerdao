@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity 0.5.12;
 
 interface DSTokenLike {
     function mint(address, uint) external;
@@ -11,19 +11,23 @@ interface VatLike {
     function move(address, address, uint) external;
 }
 
-contract ETHJoin is LibNote {
+contract ETHJoin {
     // --- Auth ---
-    mapping (address => uint) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
-    modifier auth {
+    mapping(address => uint) public wards;
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+    }
+    modifier auth() {
         require(wards[msg.sender] == 1, "ETHJoin/not-authorized");
         _;
     }
 
     VatLike public vat;
     bytes32 public ilk;
-    uint    public live;  // Access Flag
+    uint public live; // Access Flag
 
     constructor(address vat_, bytes32 ilk_) public {
         wards[msg.sender] = 1;
@@ -31,15 +35,15 @@ contract ETHJoin is LibNote {
         vat = VatLike(vat_);
         ilk = ilk_;
     }
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
     }
-    function join(address usr) external payable note {
+    function join(address usr) external payable {
         require(live == 1, "ETHJoin/not-live");
         require(int(msg.value) >= 0, "ETHJoin/overflow");
         vat.slip(ilk, usr, int(msg.value));
     }
-    function exit(address payable usr, uint wad) external note {
+    function exit(address payable usr, uint wad) external {
         require(int(wad) >= 0, "ETHJoin/overflow");
         vat.slip(ilk, msg.sender, -int(wad));
         usr.transfer(wad);

@@ -11,6 +11,7 @@ import {
   DaiJoin,
   Dog,
   ETHJoin,
+  LinearDecrease,
   Median,
   OSM,
   Spotter,
@@ -29,7 +30,8 @@ describe("Modules", async function () {
     osm: OSM,
     dog: Dog,
     vow: Vow,
-    clip: Clipper;
+    clip: Clipper,
+    abaci: LinearDecrease;
   const ilk = encodeBytes32String("ETH-A");
   let ethJoinAddress: AddressLike,
     daiJoinAddress: AddressLike,
@@ -39,7 +41,8 @@ describe("Modules", async function () {
     spotterAddress: AddressLike,
     vowAddress: AddressLike,
     clipAddress: AddressLike,
-    dogAddress: AddressLike;
+    dogAddress: AddressLike,
+    abaciAddress: AddressLike;
   beforeEach(async function () {
     ({ dai } = await loadFixture(helper.deployDAI));
     ({ vat } = await helper.deployVat());
@@ -51,6 +54,7 @@ describe("Modules", async function () {
     ({ dog } = await helper.deployDog(vat));
     ({ vow } = await helper.deployVow(vat));
     ({ clip } = await helper.deployClip(vat, spotter, dog, ilk));
+    ({ abaci } = await helper.deployAbaci());
     ethJoinAddress = await ethJoin.getAddress();
     daiJoinAddress = await daiJoin.getAddress();
     vatAddress = await vat.getAddress();
@@ -60,6 +64,7 @@ describe("Modules", async function () {
     vowAddress = await vow.getAddress();
     clipAddress = await clip.getAddress();
     dogAddress = await dog.getAddress();
+    abaciAddress = await abaci.getAddress();
   });
   describe("Deployment", function () {
     it("Should DAI set the owner as authorized address", async function () {
@@ -82,6 +87,9 @@ describe("Modules", async function () {
     });
     it("Should deploy Spotter with correct arguments", async function () {
       expect(spotter).to.exist;
+    });
+    it("Should deploy Abacus", async function () {
+      expect(abaci).to.exist;
     });
   });
 
@@ -162,7 +170,6 @@ describe("Modules", async function () {
     });
     it("Bark The Undercollaterized Vault", async function () {
       const [owner, account1] = await hre.ethers.getSigners();
-
       spotter["file(bytes32,bytes32,address)"](
         ilk,
         encodeBytes32String("pip"),
@@ -243,9 +250,132 @@ describe("Modules", async function () {
       console.log(await vat.urns(ilk, account1.address));
       const result = await dog.bark(ilk, account1.address, account1.address);
       console.log(await vat.urns(ilk, account1.address));
+    });
+    it("Initiate An Auction for Undercollaterized Vault", async function () {
+      const [owner, account1, bidder1, bidder2] = await hre.ethers.getSigners();
+      spotter["file(bytes32,bytes32,address)"](
+        ilk,
+        encodeBytes32String("pip"),
+        osmAddress
+      );
+      spotter["file(bytes32,bytes32,uint256)"](
+        ilk,
+        encodeBytes32String("mat"),
+        "1500000000000000000000000000"
+      );
+      await median["kiss(address)"](osmAddress); // let the osm fetch the price from median
+      await median["kiss(address)"](owner.address); // let the owner fetch the price from median
+      await osm["kiss(address)"](spotterAddress); // let the spotter fetch the price from osm
+      await osm["kiss(address)"](clipAddress); // let the clip fetch the price from osm
+      await osm["kiss(address)"](owner.address); // let the owner addrest peek the price
+      await dai.connect(owner).rely(daiJoinAddress); // let the daiJoin mint dai
+      await vat.connect(owner).rely(ethJoinAddress); // let the ethJoin update the user's balance
+      await vat.connect(owner).rely(spotterAddress); // let the spotter update the illk.spot
+      await vat.connect(owner).rely(dogAddress);
+      await vat.connect(owner).init(ilk);
+      await median.lift([owner.address]);
+      await clip.connect(owner).rely(dogAddress); // let the dog call kik
+      await clip.upchost(); // update the chost
+      const initialPrice = ethers.parseEther("3000");
+      const age1 = (await ethers.provider.getBlock("latest"))?.timestamp; // Current timestamp
+      await median.poke([initialPrice], [age1], [owner.address]);
+      await osm.poke();
+      await ethers.provider.send("evm_increaseTime", [3601]); // 1 hour
+      await ethers.provider.send("evm_mine");
+      const updatedPrice = ethers.parseEther("2900"); // New price
+      const age2 = (await ethers.provider.getBlock("latest"))?.timestamp; // Updated timestamp after 1 hour
+      await median.poke([updatedPrice], [age2], [owner.address]);
+      await osm.poke();
+      await spotter.poke(ilk);
+      const collateralAmount = ethers.parseEther("10");
+      await ethJoin
+        .connect(account1)
+        .join(account1.address, { value: collateralAmount });
+      await vat.connect(account1).frob(
+        ilk,
+        account1.address,
+        account1.address,
+        account1.address,
+        collateralAmount,
+        ethers.parseEther("20000") // the Max Dai to barrow when the real price is 3000
+      );
+      await vat.connect(account1).hope(daiJoinAddress);
+      await daiJoin
+        .connect(account1)
+        .exit(account1.address, ethers.parseEther("20000"));
+      {
+        const collateralAmount = ethers.parseEther("20");
+        await ethJoin
+          .connect(bidder1)
+          .join(bidder1.address, { value: collateralAmount });
+        await vat.connect(bidder1).frob(
+          ilk,
+          bidder1.address,
+          bidder1.address,
+          bidder1.address,
+          collateralAmount,
+          ethers.parseEther("40000") // the Max Dai to barrow when the real price is 3000
+        );
+        console.log(
+          "vat.dai(bidder1.address): ",
+          await vat.dai(bidder1.address)
+        );
+        await vat.connect(bidder1).hope(daiJoinAddress);
+        // await daiJoin
+        //   .connect(bidder1)
+        //   .exit(bidder1.address, ethers.parseEther("20000"));
+      }
+      await ethers.provider.send("evm_increaseTime", [3601]); // 1 hour
+      await ethers.provider.send("evm_mine");
+      await osm.poke();
+      await spotter.poke(ilk);
+      await dog["file(bytes32,uint256)"](
+        encodeBytes32String("Hole"),
+        BigInt(150000000000000000000000000000000000000000000000000000) // Max system-wide debt to liquidate
+      );
+      await dog["file(bytes32,bytes32,uint256)"](
+        encodeBytes32String("ETH-A"),
+        encodeBytes32String("hole"),
+        BigInt(40000000000000000000000000000000000000000000000000000) // Max debt for ETH-A to liquidate
+      );
+      await dog["file(bytes32,bytes32,uint256)"](
+        ilk,
+        encodeBytes32String("chop"),
+        ethers.parseEther("1.13")
+      );
+      await dog["file(bytes32,address)"](
+        encodeBytes32String("vow"),
+        vowAddress
+      );
+      await dog["file(bytes32,bytes32,address)"](
+        ilk,
+        encodeBytes32String("clip"),
+        clipAddress
+      );
+      await dog.bark(ilk, account1.address, account1.address);
 
-      // todo: clean the hole test
-      // todo: review what do their clip and vow functions
+      await clip["file(bytes32,address)"](
+        encodeBytes32String("calc"),
+        abaciAddress
+      );
+      await clip["file(bytes32,uint256)"](encodeBytes32String("tail"), 3600);
+      await vat.connect(bidder1).hope(clipAddress);
+      await dog.rely(clipAddress);
+      await abaci.file(encodeBytes32String("tau"), 3600);
+      const balancebefore = await hre.ethers.provider.getBalance(bidder1.address)
+      console.log("balance before: ", balancebefore);
+      await clip
+        .connect(bidder1)
+        .take(
+          1,
+          collateralAmount,
+          "2900000000000000000000000000000",
+          bidder1.address,
+          "0x"
+        );
+      console.log("balance after: ", await hre.ethers.provider.getBalance(bidder1.address));
+      console.log("balance : ",  balancebefore - await hre.ethers.provider.getBalance(bidder1.address));
+
     });
   });
 });

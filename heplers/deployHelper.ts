@@ -73,3 +73,8 @@ export const deployClip = async (
   const clip = await Clip.deploy(vat_, spotter_, dog_, ilk_);
   return { clip };
 };
+export const deployAbaci = async () => {
+  const LinearDecrease = await hre.ethers.getContractFactory("LinearDecrease");
+  const abaci = await LinearDecrease.deploy();
+  return { abaci };
+}

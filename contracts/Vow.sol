@@ -14,7 +14,7 @@ contract Vow {
     // --- Data ---
     VatLike public vat;        // CDP Engine
     uint256 public live;  // Active Flag
-
+    uint256 public Ash;   // On-auction debt        [rad]
     mapping (uint256 => uint256) public sin;  // debt queue
     uint256 public Sin;   // Queued debt            [rad]
     // --- Init ---
@@ -39,5 +39,13 @@ contract Vow {
         sin[now] = add(sin[now], tab);
         Sin = add(Sin, tab);
     }
+
+    function kiss(uint rad) external {
+        require(rad <= Ash, "Vow/not-enough-ash");
+        require(rad <= vat.dai(address(this)), "Vow/insufficient-surplus");
+        Ash = sub(Ash, rad);
+        vat.heal(rad);
+    }
+
 
 }

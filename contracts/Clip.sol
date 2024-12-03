@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
+import "hardhat/console.sol";
 pragma solidity 0.5.12;
 
 interface VatLike {
@@ -377,6 +378,7 @@ contract Clipper {
                 ClipperCallee(who).clipperCall(msg.sender, owe, slice, data);
             }
 
+            console.log(owe);
             // Get DAI from caller
             vat.move(msg.sender, vow, owe);
 
@@ -433,7 +435,7 @@ contract Clipper {
     }
 
     // Internally returns boolean for if an auction needs a redo
-    function status(uint96 tic, uint256 top) internal view returns (bool done, uint256 price) {
+    function status(uint96 tic, uint256 top) public view returns (bool done, uint256 price) {
         price = calc.price(top, sub(block.timestamp, tic));
         done  = (sub(block.timestamp, tic) > tail || rdiv(price, top) < cusp);
     }

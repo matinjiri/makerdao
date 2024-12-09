@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 import "hardhat/console.sol";
 
 pragma solidity 0.5.12;
@@ -117,6 +118,7 @@ contract Vat {
     }
     function move(address src, address dst, uint256 rad) external {
         require(wish(src, msg.sender), "Vat/not-allowed");
+        console.log(dai[src], rad);
         dai[src] = _sub(dai[src], rad);
         dai[dst] = _add(dai[dst], rad);
     }

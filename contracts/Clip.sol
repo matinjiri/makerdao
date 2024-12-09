@@ -378,7 +378,6 @@ contract Clipper {
                 ClipperCallee(who).clipperCall(msg.sender, owe, slice, data);
             }
 
-            console.log(owe);
             // Get DAI from caller
             vat.move(msg.sender, vow, owe);
 

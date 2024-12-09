@@ -1,24 +1,20 @@
 {
   "main": {
-    "id": "d04c96583431524b",
+    "id": "2d1e16b299c7064f",
     "type": "split",
     "children": [
       {
-        "id": "7811abe317a96a0e",
+        "id": "6f556610c25555c8",
         "type": "tabs",
         "children": [
           {
-            "id": "c945bef2a2a8949c",
+            "id": "4301a93af69825fb",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Concepts/Units.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Units"
+              "title": "New tab"
             }
           }
         ]
@@ -27,15 +23,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "fe2be676a8f0a800",
+    "id": "2ba42c5c58f8eb9a",
     "type": "split",
     "children": [
       {
-        "id": "9a17947aa664b0d1",
+        "id": "04222673a9c3384a",
         "type": "tabs",
         "children": [
           {
-            "id": "f0c5eaf6c7de77b4",
+            "id": "2130768d2d6bbdfe",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -47,7 +43,7 @@
             }
           },
           {
-            "id": "053f385e60821949",
+            "id": "3bafa7e02750a43e",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -64,7 +60,7 @@
             }
           },
           {
-            "id": "319eb800ba50de3a",
+            "id": "ef3664675c2c2bd1",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -80,20 +76,19 @@
     "width": 300
   },
   "right": {
-    "id": "79e606b0f250c3f9",
+    "id": "2cb259a4396fd55f",
     "type": "split",
     "children": [
       {
-        "id": "3a63739c1fb712d5",
+        "id": "670dd361c69a6853",
         "type": "tabs",
         "children": [
           {
-            "id": "b2b4dbf432807295",
+            "id": "6a43ff236382eb27",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Concepts/Units.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,25 +98,24 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Units"
+              "title": "Backlinks"
             }
           },
           {
-            "id": "1c3a4dca948b7703",
+            "id": "a7f0b597201ebfd5",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Dai Module/ETH Join.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from ETH Join"
+              "title": "Outgoing links"
             }
           },
           {
-            "id": "acf450214cdb8ceb",
+            "id": "22c127cbc36d87bd",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -134,22 +128,21 @@
             }
           },
           {
-            "id": "8e0173f5f72ca767",
+            "id": "448ab22399481cda",
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "Dai Module/ETH Join.md"
-              },
+              "state": {},
               "icon": "lucide-list",
-              "title": "Outline of ETH Join"
+              "title": "Outline"
             }
           }
         ]
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -161,38 +154,6 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "c945bef2a2a8949c",
-  "lastOpenFiles": [
-    "System Stabilizer Module/Flapper.md",
-    "System Stabilizer Module/Vow.md",
-    "Core Module/Vat.md",
-    "Liquidation 2.0 Module/Dog.md",
-    "System Stabilizer Module/Flopper.md",
-    "Liquidation 2.0 Module/Clipper.md",
-    "Core Module/Spotter.md",
-    "System Stabilizer Module",
-    "Liquidation 2.0 Module/Interactions.md",
-    "Liquidation 2.0 Module/Features.md",
-    "Liquidation 2.0 Module/Abacus.md",
-    "Concepts/CDP.md",
-    "Concepts/Units.md",
-    "dust.md",
-    "Oracle Module/Interactions.md",
-    "Dai Module/Dai.md",
-    "Oracle Module/Median.md",
-    "Liquidation 2.0 Module",
-    "Oracle Module/DSValue.md",
-    "Oracle Module/OSM.md",
-    "().md",
-    "Oracle.md",
-    "Oracle Module",
-    "Dai Module/Dai Join.md",
-    "Dai Module/Gem Join.md",
-    "**GemJoin**.md",
-    "**Gem Join**.md",
-    "Core Module",
-    "Dai Module/ETH Join.md",
-    "Concepts",
-    "Dai Module"
-  ]
+  "active": "4301a93af69825fb",
+  "lastOpenFiles": []
 }

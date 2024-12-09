@@ -58,9 +58,9 @@ export const deployDog = async (vat_: AddressLike) => {
   const dog = await Dog.deploy(vat_);
   return { dog };
 };
-export const deployVow = async (vat_: AddressLike) => {
+export const deployVow = async (vat_: AddressLike, flapper_: AddressLike, flopper_: AddressLike) => {
   const Vow = await hre.ethers.getContractFactory("Vow");
-  const vow = await Vow.deploy(vat_);
+  const vow = await Vow.deploy(vat_, flapper_, flapper_);
   return { vow };
 };
 export const deployClip = async (
@@ -77,4 +77,19 @@ export const deployAbaci = async () => {
   const LinearDecrease = await hre.ethers.getContractFactory("LinearDecrease");
   const abaci = await LinearDecrease.deploy();
   return { abaci };
-}
+};
+export const deployFlap = async (vat_: AddressLike, gem_: AddressLike) => {
+  const Flapper = await hre.ethers.getContractFactory("Flapper");
+  const flap = await Flapper.deploy(vat_, gem_);
+  return { flap };
+};
+export const deployFlop = async (vat_: AddressLike, gem_: AddressLike) => {
+  const Flopper = await hre.ethers.getContractFactory("Flopper");
+  const flop = await Flopper.deploy(vat_, gem_);
+  return { flop };
+};
+export const deployMkr = async () => {
+  const Mkr = await hre.ethers.getContractFactory("DSToken");
+  const mkr = await Mkr.deploy("MKR");
+  return { mkr };
+};

@@ -4,7 +4,12 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre, { ethers, web3 } from "hardhat";
-import { AddressLike, BytesLike, encodeBytes32String } from "ethers";
+import {
+  AddressLike,
+  BigNumberish,
+  BytesLike,
+  encodeBytes32String,
+} from "ethers";
 import {
   Clipper,
   Dai,
@@ -58,7 +63,11 @@ export const deployDog = async (vat_: AddressLike) => {
   const dog = await Dog.deploy(vat_);
   return { dog };
 };
-export const deployVow = async (vat_: AddressLike, flapper_: AddressLike, flopper_: AddressLike) => {
+export const deployVow = async (
+  vat_: AddressLike,
+  flapper_: AddressLike,
+  flopper_: AddressLike
+) => {
   const Vow = await hre.ethers.getContractFactory("Vow");
   const vow = await Vow.deploy(vat_, flapper_, flapper_);
   return { vow };
@@ -89,7 +98,25 @@ export const deployFlop = async (vat_: AddressLike, gem_: AddressLike) => {
   return { flop };
 };
 export const deployMkr = async () => {
-  const Mkr = await hre.ethers.getContractFactory("DSToken");
+  const Mkr = await hre.ethers.getContractFactory("MKR");
   const mkr = await Mkr.deploy("MKR");
   return { mkr };
+};
+export const deploySpell = async (
+  whom_: AddressLike,
+  mana_: BigNumberish,
+  data_: BytesLike
+) => {
+  const Spell = await hre.ethers.getContractFactory("DSSpell");
+  const spell = await Spell.deploy(whom_, mana_, data_);
+  return { spell };
+};
+export const deployPause = async (
+  delay_: BigNumberish,
+  owner_: AddressLike,
+  authority_: AddressLike
+) => {
+  const Pause = await hre.ethers.getContractFactory("DSPause");
+  const pause = await Pause.deploy(delay_, owner_, authority_);
+  return { pause };
 };

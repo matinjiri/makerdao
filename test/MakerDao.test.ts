@@ -20,6 +20,9 @@ import {
   Spotter,
   Vat,
   Vow,
+  DSSpell,
+  DSPause,
+  DSChief,
 } from "../typechain-types";
 import * as helper from "../heplers/deployHelper";
 
@@ -38,6 +41,8 @@ describe("Modules", async function () {
     mkr: DSToken,
     flap: Flapper,
     flop: Flopper;
+  // spell: DSSpell,
+  // pause: DSPause;
   const ilk = encodeBytes32String("ETH-A");
   let ethJoinAddress: AddressLike,
     daiJoinAddress: AddressLike,
@@ -51,7 +56,9 @@ describe("Modules", async function () {
     abaciAddress: AddressLike,
     mkrAddress: AddressLike,
     flapAddress: AddressLike,
-    flopAddress: AddressLike;
+    flopAddress: AddressLike,
+    spellAddress: AddressLike,
+    pauseAddress: AddressLike;
   beforeEach(async function () {
     ({ dai } = await loadFixture(helper.deployDAI));
     ({ vat } = await helper.deployVat());
@@ -592,6 +599,26 @@ describe("Modules", async function () {
         .exit(bidder2.address, ethers.parseEther("10"));
       console.log(await vat.dai(bidder2));
       console.log(await dai.balanceOf(bidder2.address));
+    });
+  });
+
+  // todo
+  describe("Govern The Protocol", async function () {
+    it("Updates the minimum debt floor for vault", async function () {
+      const ilk = ethers.keccak256(ethers.toUtf8Bytes("ETH-A"));
+      const what = ethers.keccak256(ethers.toUtf8Bytes("ETH-A"));
+      const abiCoder = new ethers.AbiCoder();
+      const encoded = abiCoder.encode(
+        ["bytes32", "bytes32", "uint256"],
+        [ilk, what, 10000000000000000000000n]
+      );
+
+      // deploy spell for updating the dust
+      const { spell: DSSpell } = await helper.deploySpell(
+        vatAddress,
+        0,
+        encoded
+      );
     });
   });
 });

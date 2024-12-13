@@ -1,7 +1,7 @@
 /// token.sol -- ERC20 implementation with minting and burning
 pragma solidity >=0.4.23 <0.7.0;
 
-contract DSToken {
+contract MKR {
         // --- Auth ---
     mapping (address => uint) public wards;
     function rely(address guy) external auth { wards[guy] = 1; }

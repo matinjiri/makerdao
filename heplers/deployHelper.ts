@@ -120,3 +120,13 @@ export const deployPause = async (
   const pause = await Pause.deploy(delay_, owner_, authority_);
   return { pause };
 };
+export const deployJug = async (vat_: AddressLike) => {
+  const Jug = await hre.ethers.getContractFactory("Jug");
+  const jug = await Jug.deploy(vat_);
+  return { jug };
+};
+export const deployPot = async (vat_: AddressLike) => {
+  const Pot = await hre.ethers.getContractFactory("Pot");
+  const pot = await Pot.deploy(vat_);
+  return { pot };
+};

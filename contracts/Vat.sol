@@ -117,8 +117,10 @@ contract Vat {
         gem[ilk][dst] = _add(gem[ilk][dst], wad);
     }
     function move(address src, address dst, uint256 rad) external {
+        console.log("dai[src]:", dai[src]);
+console.log("rad:", rad);
+
         require(wish(src, msg.sender), "Vat/not-allowed");
-        console.log(dai[src], rad);
         dai[src] = _sub(dai[src], rad);
         dai[dst] = _add(dai[dst], rad);
     }

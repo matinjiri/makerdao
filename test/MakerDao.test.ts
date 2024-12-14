@@ -4,7 +4,12 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre, { ethers, web3 } from "hardhat";
-import { AddressLike, BytesLike, encodeBytes32String } from "ethers";
+import {
+  AddressLike,
+  BytesLike,
+  encodeBytes32String,
+  parseUnits,
+} from "ethers";
 import {
   Clipper,
   Dai,
@@ -23,6 +28,8 @@ import {
   DSSpell,
   DSPause,
   DSChief,
+  Jug,
+  Pot,
 } from "../typechain-types";
 import * as helper from "../heplers/deployHelper";
 
@@ -40,7 +47,9 @@ describe("Modules", async function () {
     abaci: LinearDecrease,
     mkr: DSToken,
     flap: Flapper,
-    flop: Flopper;
+    flop: Flopper,
+    jug: Jug,
+    pot: Pot;
   // spell: DSSpell,
   // pause: DSPause;
   const ilk = encodeBytes32String("ETH-A");
@@ -58,7 +67,9 @@ describe("Modules", async function () {
     flapAddress: AddressLike,
     flopAddress: AddressLike,
     spellAddress: AddressLike,
-    pauseAddress: AddressLike;
+    pauseAddress: AddressLike,
+    jugAddress: AddressLike,
+    potAddress: AddressLike;
   beforeEach(async function () {
     ({ dai } = await loadFixture(helper.deployDAI));
     ({ vat } = await helper.deployVat());
@@ -74,6 +85,8 @@ describe("Modules", async function () {
     ({ flap } = await helper.deployFlap(vat, mkr));
     ({ flop } = await helper.deployFlop(vat, mkr));
     ({ vow } = await helper.deployVow(vat, flap, flop));
+    ({ jug } = await helper.deployJug(vat));
+    ({ pot } = await helper.deployPot(vat));
     ethJoinAddress = await ethJoin.getAddress();
     daiJoinAddress = await daiJoin.getAddress();
     vatAddress = await vat.getAddress();
@@ -87,6 +100,8 @@ describe("Modules", async function () {
     flapAddress = await flap.getAddress();
     flopAddress = await flop.getAddress();
     mkrAddress = await mkr.getAddress();
+    jugAddress = await jug.getAddress();
+    potAddress = await pot.getAddress();
   });
   describe("Deployment", function () {
     it("Should DAI set the owner as authorized address", async function () {
@@ -124,6 +139,12 @@ describe("Modules", async function () {
     });
     it("Should deploy Flapper", async function () {
       expect(flap).to.exist;
+    });
+    it("Should deploy Jug", async function () {
+      expect(jug).to.exist;
+    });
+    it("Should deploy Pot", async function () {
+      expect(pot).to.exist;
     });
   });
 
@@ -599,6 +620,120 @@ describe("Modules", async function () {
         .exit(bidder2.address, ethers.parseEther("10"));
       console.log(await vat.dai(bidder2));
       console.log(await dai.balanceOf(bidder2.address));
+    });
+    it("Should Apply The Stability Fee And Accrue Interest", async function () {
+      const [owner, account1] = await hre.ethers.getSigners();
+      spotter["file(bytes32,bytes32,address)"](
+        ilk,
+        encodeBytes32String("pip"),
+        osmAddress
+      ); // set osm for ETH-A]
+      spotter["file(bytes32,bytes32,uint256)"](
+        ilk,
+        encodeBytes32String("mat"),
+        "1500000000000000000000000000"
+      ); // 150% collateral ratio
+      await median["kiss(address)"](osmAddress); // let the osm fetch the price from median
+      await median["kiss(address)"](owner.address); // let the owner fetch the price from median
+      await osm["kiss(address)"](spotterAddress); // let the spotter fetch the price from osm
+      await osm["kiss(address)"](owner.address); // let the owner addrest peek the price
+      await dai.connect(owner).rely(daiJoinAddress); // let the daiJoin mint dai
+      await vat.connect(owner).rely(ethJoinAddress); // let the ethJoin update the user's balance
+      await vat.connect(owner).rely(spotterAddress); // let the spotter update the illk.spot
+      await vat.connect(owner).init(ilk);
+      await median.lift([owner.address]);
+      const initialPrice = ethers.parseEther("3000");
+      const age1 = (await ethers.provider.getBlock("latest"))?.timestamp; // Current timestamp
+      await median.poke([initialPrice], [age1], [owner.address]);
+      await osm.poke();
+      await ethers.provider.send("evm_increaseTime", [3601]); // 1 hour
+      await ethers.provider.send("evm_mine");
+      const updatedPrice = ethers.parseEther("3000"); // New price
+      const age2 = (await ethers.provider.getBlock("latest"))?.timestamp; // Updated timestamp after 1 hour
+      await median.poke([updatedPrice], [age2], [owner.address]);
+      await osm.poke();
+      await spotter.poke(ilk);
+      const collateralAmount = ethers.parseEther("10");
+      await ethJoin
+        .connect(account1)
+        .join(account1.address, { value: collateralAmount });
+      await vat.connect(account1).frob(
+        ilk,
+        account1.address,
+        account1.address,
+        account1.address,
+        collateralAmount,
+        ethers.parseEther("20000") // the Max Dai
+      );
+      await vat.connect(account1).hope(daiJoinAddress); // account lets the daiJoin have accesee to my balance in vat
+      await daiJoin
+        .connect(account1)
+        .exit(account1.address, ethers.parseEther("20000"));
+      await vat.rely(jugAddress);
+      await jug.init(ilk);
+      await ethers.provider.send("evm_increaseTime", [36000000]);
+      await ethers.provider.send("evm_mine");
+
+      console.log(await vat.dai(vowAddress));
+
+      await jug.drip(ilk);
+      // todo: i dont know how to update the rate for specefic ilk
+      // await jug["file(bytes32,bytes32,uint256)"](
+      //   ilk,
+      //   ethers.encodeBytes32String("duty"),
+      //   ethers.parseUnits("10", 27)
+      // );
+      console.log(await vat.dai(vowAddress));
+    });
+    it("Should Deposit Dai, Accrue Interest, And Withdraw With Accrued Interest", async function () {
+      const [owner, account1] = await hre.ethers.getSigners();
+      spotter["file(bytes32,bytes32,address)"](
+        ilk,
+        encodeBytes32String("pip"),
+        osmAddress
+      ); // set osm for ETH-A]
+      spotter["file(bytes32,bytes32,uint256)"](
+        ilk,
+        encodeBytes32String("mat"),
+        "1500000000000000000000000000"
+      ); // 150% collateral ratio
+      await median["kiss(address)"](osmAddress); // let the osm fetch the price from median
+      await median["kiss(address)"](owner.address); // let the owner fetch the price from median
+      await osm["kiss(address)"](spotterAddress); // let the spotter fetch the price from osm
+      await osm["kiss(address)"](owner.address); // let the owner addrest peek the price
+      await dai.connect(owner).rely(daiJoinAddress); // let the daiJoin mint dai
+      await vat.connect(owner).rely(ethJoinAddress); // let the ethJoin update the user's balance
+      await vat.connect(owner).rely(spotterAddress); // let the spotter update the illk.spot
+      await vat.connect(owner).init(ilk);
+      await median.lift([owner.address]);
+      const initialPrice = ethers.parseEther("3000");
+      const age1 = (await ethers.provider.getBlock("latest"))?.timestamp; // Current timestamp
+      await median.poke([initialPrice], [age1], [owner.address]);
+      await osm.poke();
+      await ethers.provider.send("evm_increaseTime", [3601]); // 1 hour
+      await ethers.provider.send("evm_mine");
+      const updatedPrice = ethers.parseEther("3000"); // New price
+      const age2 = (await ethers.provider.getBlock("latest"))?.timestamp; // Updated timestamp after 1 hour
+      await median.poke([updatedPrice], [age2], [owner.address]);
+      await osm.poke();
+      await spotter.poke(ilk);
+      const collateralAmount = ethers.parseEther("10");
+      await ethJoin
+        .connect(account1)
+        .join(account1.address, { value: collateralAmount });
+      await vat.connect(account1).frob(
+        ilk,
+        account1.address,
+        account1.address,
+        account1.address,
+        collateralAmount,
+        ethers.parseEther("20000") // the Max Dai
+      );
+      await vat.rely(potAddress);
+      // todo: deposit dai to pot
+      await pot.connect(account1).join(ethers.parseEther("20000"));
+      console.log(await pot.pie(account1.address));
+      
     });
   });
 

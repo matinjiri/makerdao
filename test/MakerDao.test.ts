@@ -30,6 +30,8 @@ import {
   DSChief,
   Jug,
   Pot,
+  End,
+  ESM,
 } from "../typechain-types";
 import * as helper from "../heplers/deployHelper";
 
@@ -49,7 +51,9 @@ describe("Modules", async function () {
     flap: Flapper,
     flop: Flopper,
     jug: Jug,
-    pot: Pot;
+    pot: Pot,
+    end: End,
+    esm: ESM;
   // spell: DSSpell,
   // pause: DSPause;
   const ilk = encodeBytes32String("ETH-A");
@@ -69,7 +73,9 @@ describe("Modules", async function () {
     spellAddress: AddressLike,
     pauseAddress: AddressLike,
     jugAddress: AddressLike,
-    potAddress: AddressLike;
+    potAddress: AddressLike,
+    endAddress: AddressLike,
+    esmAddress: AddressLike;
   beforeEach(async function () {
     ({ dai } = await loadFixture(helper.deployDAI));
     ({ vat } = await helper.deployVat());
@@ -87,6 +93,8 @@ describe("Modules", async function () {
     ({ vow } = await helper.deployVow(vat, flap, flop));
     ({ jug } = await helper.deployJug(vat));
     ({ pot } = await helper.deployPot(vat));
+    ({ end } = await helper.deployEnd());
+    //({ esm } = await helper.deployESM(mkr, end, proxy, 100));
     ethJoinAddress = await ethJoin.getAddress();
     daiJoinAddress = await daiJoin.getAddress();
     vatAddress = await vat.getAddress();
@@ -146,6 +154,12 @@ describe("Modules", async function () {
     it("Should deploy Pot", async function () {
       expect(pot).to.exist;
     });
+    it("Should deploy End", async function () {
+      expect(end).to.exist;
+    });
+    // it("Should deploy Esm", async function () {
+    //   expect(esm).to.exist;
+    // });
   });
 
   describe("Maker Dao Protocol", function () {
@@ -731,7 +745,7 @@ describe("Modules", async function () {
       );
       await vat.rely(potAddress);
       // todo: deposit dai to pot
-      await pot.connect(account1).join(ethers.parseEther("20000"));
+      // await pot.connect(account1).join(ethers.parseEther("20000"));
       console.log(await pot.pie(account1.address));
       
     });

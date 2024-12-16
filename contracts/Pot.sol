@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 import "hardhat/console.sol";
 
-pragma solidity 0.5.10;
+pragma solidity 0.5.12;
 
 
 interface VatLike {

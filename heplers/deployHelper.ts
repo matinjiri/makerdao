@@ -130,3 +130,18 @@ export const deployPot = async (vat_: AddressLike) => {
   const pot = await Pot.deploy(vat_);
   return { pot };
 };
+export const deployESM = async (
+  gem_: AddressLike,
+  end_: AddressLike,
+  proxy_: AddressLike,
+  min_: BigNumberish
+) => {
+  const ESM = await hre.ethers.getContractFactory("ESM");
+  const esm = await ESM.deploy(gem_, end_, proxy_, min_);
+  return { esm };
+};
+export const deployEnd = async () => {
+  const End = await hre.ethers.getContractFactory("End");
+  const end = await End.deploy();
+  return { end };
+};

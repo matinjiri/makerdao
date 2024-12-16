@@ -1,4 +1,4 @@
-/// token.sol -- ERC20 implementation with minting and burning
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity >=0.4.23 <0.7.0;
 
 contract MKR {

@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "7d809b696fe68ec3",
+        "id": "aea5c0049afc766d",
         "type": "tabs",
         "children": [
           {
-            "id": "86498e7600372415",
+            "id": "ca13a21ed2b9d50c",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -156,10 +156,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "86498e7600372415",
+  "active": "ca13a21ed2b9d50c",
   "lastOpenFiles": [
-    "Proxy Module/CDP Manager.md",
+    "Flash Mint Module/Flash Mint.md",
     "Untitled.md",
+    "Flash Mint Module",
+    "Proxy Module/CDP Manager.md",
     "Core Module/Vat.md",
     "Proxy Module/Vote Proxy.md",
     "Governance Module/Chief.md",
@@ -188,11 +190,9 @@
     "Liquidation 2.0 Module/Abacus.md",
     "Concepts/CDP.md",
     "dust.md",
-    "Oracle Module/Interactions.md",
     "Liquidation 2.0 Module",
     "Oracle Module",
     "Core Module",
-    "Concepts",
-    "Dai Module"
+    "Concepts"
   ]
 }
